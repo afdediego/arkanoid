@@ -2,11 +2,23 @@
 <html>
 <head>
     <title>Arkanoid Web</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: none;
+        }
+
         canvas {
             border: 2px solid black;
             background: #000;
         }
+
         body {
             display: flex;
             justify-content: center;
@@ -14,6 +26,16 @@
             height: 100vh;
             margin: 0;
             background-color: #333;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            canvas {
+                width: 100%;
+                height: auto;
+            }
         }
     </style>
 </head>
@@ -64,14 +86,40 @@
             }
         }
 
-        // Event listeners
+        // Función para obtener la posición X relativa al canvas
+        function getRelativeX(clientX) {
+            const rect = canvas.getBoundingClientRect();
+            return (clientX - rect.left) * (canvas.width / rect.width);
+        }
+
+        // Evento para ratón
         document.addEventListener('mousemove', (e) => {
-            const relativeX = e.clientX - canvas.offsetLeft;
+            const relativeX = getRelativeX(e.clientX);
             if(relativeX > 0 && relativeX < canvas.width) {
-                paddle.x = relativeX - paddle.width/2;
+                paddle.x = Math.min(Math.max(relativeX - paddle.width/2, 0), canvas.width - paddle.width);
             }
         });
 
+        // Eventos táctiles
+        let touchStartX = 0;
+        let paddleStartX = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartX = e.touches[0].clientX;
+            paddleStartX = paddle.x;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const scaleFactor = canvas.width / canvas.getBoundingClientRect().width;
+            let newX = paddleStartX + (deltaX * scaleFactor);
+            paddle.x = Math.min(Math.max(newX, 0), canvas.width - paddle.width);
+        });
+
+        // Keyboard controls
         document.addEventListener('keydown', (e) => {
             if(e.key === 'ArrowLeft' && paddle.x > 0) {
                 paddle.x -= 20;
@@ -150,26 +198,27 @@
             drawScore();
             collisionDetection();
 
+            // Colisión con paredes laterales
             if(ball.x + ball.dx > canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
                 ball.dx = -ball.dx;
             }
+
+            // Colisión con techo y paleta
             if(ball.y + ball.dy < ball.radius) {
                 ball.dy = -ball.dy;
             } else if(ball.y + ball.dy > canvas.height - ball.radius) {
                 if(ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
+                    // Calcula el punto de impacto relativo en la paleta (0-1)
+                    let hitPoint = (ball.x - paddle.x) / paddle.width;
+                    
+                    // Ajusta el ángulo de rebote basado en el punto de impacto
+                    ball.dx = 4 * (hitPoint - 0.5);
                     ball.dy = -ball.dy;
                 } else {
                     gameRunning = false;
                     alert('GAME OVER');
                     document.location.reload();
                 }
-            }
-
-
-            
-
-            if(ball.y + ball.dy > canvas.height-ball.radius || ball.y + ball.dy < ball.radius) {
-                ball.dy = -ball.dy;
             }
 
             ball.x += ball.dx;
