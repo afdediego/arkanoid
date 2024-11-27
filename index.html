@@ -58,7 +58,7 @@
             width: 120,
             height: 10,
             x: 240,
-            y: canvas.height - 10  // Coloca la pala justo en el borde inferior
+            y: canvas.height - 10  // Ajusta la pala al borde inferior
         };
 
         const brickRowCount = 5;
@@ -216,7 +216,7 @@
                     ball.dy = -ball.dy;
                     
                     // Asegura que la pelota no quede "pegada" a la pala
-                    ball.y = paddle.y - ball.radius - 1;  // Ajuste para evitar que la pelota atraviese la pala
+                    ball.y = paddle.y - ball.radius;
                 } else if(ball.y > canvas.height - ball.radius) {
                     gameRunning = false;
                     alert('GAME OVER');
