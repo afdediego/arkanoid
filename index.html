@@ -58,7 +58,7 @@
             width: 120,
             height: 10,
             x: 240,
-            y: 370
+            y: 350  // Cambiado de 370 a 350
         };
 
         const brickRowCount = 5;
@@ -206,7 +206,7 @@
             // Colisión con techo y paleta
             if(ball.y + ball.dy < ball.radius) {
                 ball.dy = -ball.dy;
-            } else if(ball.y + ball.dy > canvas.height - ball.radius) {
+            } else if(ball.y + ball.dy > paddle.y - ball.radius) {
                 if(ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
                     // Calcula el punto de impacto relativo en la paleta (0-1)
                     let hitPoint = (ball.x - paddle.x) / paddle.width;
@@ -214,7 +214,10 @@
                     // Ajusta el ángulo de rebote basado en el punto de impacto
                     ball.dx = 4 * (hitPoint - 0.5);
                     ball.dy = -ball.dy;
-                } else {
+                    
+                    // Asegura que la pelota no quede "pegada" a la pala
+                    ball.y = paddle.y - ball.radius;
+                } else if(ball.y > canvas.height - ball.radius) {
                     gameRunning = false;
                     alert('GAME OVER');
                     document.location.reload();
