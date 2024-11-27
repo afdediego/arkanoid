@@ -49,8 +49,8 @@
         const ball = {
             x: 300,
             y: 300,
-            dx: 2,
-            dy: -2,
+            dx: 5,  // Velocidad aumentada
+            dy: -5, // Velocidad aumentada
             radius: 10
         };
 
@@ -58,7 +58,7 @@
             width: 120,
             height: 10,
             x: 240,
-            y: canvas.height - 10  // Ajusta la pala al borde inferior
+            y: canvas.height - 10
         };
 
         const brickRowCount = 5;
@@ -212,7 +212,7 @@
                     let hitPoint = (ball.x - paddle.x) / paddle.width;
                     
                     // Ajusta el ángulo de rebote basado en el punto de impacto
-                    ball.dx = 4 * (hitPoint - 0.5);
+                    ball.dx = 6 * (hitPoint - 0.5);  // Aumentado para mayor velocidad en rebotes
                     ball.dy = -ball.dy;
                     
                     // Asegura que la pelota no quede "pegada" a la pala
